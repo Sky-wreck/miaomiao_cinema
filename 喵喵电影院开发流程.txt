@@ -1,0 +1,176 @@
+1.搭建好脚手架和配置好远程仓库
+2.创建一个分支，小组成员在子分支开发
+  src文件下的assets是放一些静态资源的，assets里面的图片会编码成base64的，建议里面放一些小图标，public里面放一些比较大的图片
+  views里面放的是页面级别的组件，复用性小，components里面放一些公共的组件
+
+  为了可扩展，建议创建文件夹，在views里面写好页面，相应的router里面配置好路由
+3.头部组件和导航组件：
+	在components下创建公共文件夹Header和TabBar，里面有相应的index.vue，
+ 	组件写好后，在views文件夹下引入组件，利用局部组件components注入
+    
+    	在components文件夹下的Header头部动态获取标题：  
+		在header文件下的index.vue文件下的<script>标签下的export default中写入子组件访问父组件的接口props,
+		然后在views中父组件引入该头部组件的标签上添加title属性
+4.电影路由与组件拆分：
+	在components文件夹下创建City、NowPlaying、ComingSoon、Search文件夹，里面有相应的index.vue
+	在主路由中写一个重定向，当路径不匹配时回到movie路由，然后在movie路由中引入二级路由，把City、NowPlaying、ComingSoon、Search都引入进去
+	在views中的Movie文件夹下的index.vue中添加导航
+5.影院组件与登录组件：
+	构造影院组件及样式,然后在views中的Cinema组件中引入该子组件，上传到github中
+6.城市组件数据渲染：
+	git checkout -b setData 创建一个分支
+	在项目根目录下创建vue.config.js文件，这是vue脚手架的配置环境，设置反向代理
+	导入接口的数据，利用mint-ui设计滚轮
+7.各种数据渲染：
+	各种数据渲染完毕后，打开git bash
+	git status查看修改内容
+	git add . 提交内容
+	git commit -m "add setData" 添加注释
+	git checkout dev 切换开发分支
+	git merge setData --no-ff
+	git push origin dev  添加到远程仓库
+ 	git banch 查看分支
+	git branch -d setData 删除setData分支
+8.封装better-scroll组件：
+	打开git bash
+	git checkout -b getCity 创建一个分支
+	在根目录cnpm i -s better-scroll安装滑屏插件
+	首先在NowPlaying引入，在数据赋值的时候调用此组件可能页面还没有渲染，故 使用this.$nextTick //此方法可以保证数据渲染完毕之后在触发回调函数
+	在图片添加点击事件@tap
+9.封装loading组件：    当还没加载完数据的时候显示一个正在加载动画效果
+10.当前城市本地存储和状态管理：	
+	在mounted生命周期中，window.localStorage.setItem('cityList', dataList)进行数据本地存储，数组是不能直接存储的，得转换成字符串类型
+	
+	在stroe文件夹下的index.js中使用vuex进行状态管理，在store文件夹下创建city文件夹，在comonents文件夹下的City添加点击按钮@click，但是得在click.native才可以使用，
+	修改状态管理，保存城市名字和Id到localstorage,  然后修改初始状态管理中的状态得到此状态，跳转到正在热映页面
+11.修改当前城市ID关联数据：
+	mounted生命周期在keep-alive缓存后不会再次触发，但是activated生命周期可以
+	获取状态管理中的cityId,对url中的id进行赋值
+12.定位城市与弹窗：
+	在components下创建JS文件夹，里面在创一个MessageBox文件夹，里面的vue组件写好样式
+
+	为了js和vue结合，在js文件里写出对外接口，配置参数，然后渲染vue文件里的参数
+
+	git status查看修改内容
+	git add . 提交内容
+	git commit -m "add getCity" 添加注释
+	git checkout dev 切换开发分支
+	git merge getCity --no-ff
+	git push origin dev  添加到远程仓库
+ 	git banch 查看分支
+	git branch -d setData 删除setData分支
+13.电影详情页组件开发：
+	打开gitbash,git checkout -b detailPage创建分支
+
+	在views文件的Movie文件夹下创建detail.vue ,然后配置好动态路由
+14.项目打包：
+	找到主路由， 修改base: process.env.BASE_URL为base : 'miaomiao', 
+	修改静态资源路径，在vue.congig.js中添加 public : '/miaomiao',在终端输入npm run build 进行打包
+
+	nginx可以去官网下，进行反向代理，双击启动一下，找到nginx目录下的conf下的nginx.conf,添加location /miaomiao/ {
+            root html;
+            index index.html index.htm;
+           #    try_files $uri $uri/ /miaomiao/index.html; 
+        }
+	把miaomiao下的dist文件里的所有内容粘贴到nginx下的喵喵文件里
+
+
+
+
+15.搭建后台与接口分析：
+	在miaomiao上级目录的命令行中输入express -e miaomiaoserver创建项目，cd进入项目后，cnpm i 安装第三方模块,cnpm i -S mongoose安装mongoose,
+	在miaomiaoserver文件夹下创建db文件夹，再打开一个命令行窗口，输入mongod --dbpath=mongod --dbpath:E:\学习内容\前端\webstorm代码文件\miaomiaoserver\db
+	连接数据库，端口号为27017，然后db文件夹就有一些默认的文件生成，然后在miaomiaoserver创建untils文件夹存放一些通用的东西，创建一个config.js
+	在里面写好连接数据库的方法，并且暴露接口，然后在app.js中引用并且调用
+
+	打开robo创建数据库
+	
+16.邮箱配置与验证码接口：
+	在根目录创建models和controllers文件夹，里面都有users.js,在routes的users.js文件引入controllers下的users.js,
+	并且调用users.js的接口
+	
+	输入cnpm o -S nodemailer创建邮箱模块，在qq邮箱设置中开启IMAP/SMTP服务，记住授权码，在config.js中引入并且配置，并写好生成验证码的方法，回到控制层，在config.js引用
+	Email接口，把verify验证的方法过程写好
+	
+
+
+	IMAP/SMTP服务授权码：oozpbxmygyhnffhf		POP3/SMTP服务授权码：nauvmhkkkpdgbaba
+
+17.数据持久化和用户注册接口：
+	首先安装session的第三方模块，cnpm install express-session,然后在app.js引入并且配置，配好之后回到控制层，把email和验证码存到session中
+	在注册接口上验证验证码，注册肯定的有数据库，所以去完善model层，然后
+	
+18.登录登出接口与查询用户信息接口：
+	登录接口先获取传过来的字段，调用model的方法，该方法可以在数据库中验证用户名和密码是否匹配，匹配则存入session,
+	登出接口先将session的username赋值为空，然后提示退出成功
+	查询用户信息接口先判断session中是否有用户名，如果有，则把用户信息发送给前台，若没有则获取失败
+19.修改密码接口与用户组件创建：
+	修改密码接口首先获取到前端传递的邮箱密码和验证码，验证邮箱和验证码相匹配，调用moedl的方法，该方法可以修改用户的密码
+
+	打开前台，在Views/Mine创建center.vue,还有注册页，修改密码页，然后在router/mine/index.js配置子路由
+		
+20.用户登录组件开发：
+	打开Login/index.vue,定义一个data(),之后在输入框加一个v-model=' '，然后在登录按钮加点击操作，然后配置反向代理，注意本地的接口要在上边
+	
+21.保存登录态和用户状态管理：
+	写一个前置守卫beforeRouterEnter,如果没有登录跳转登录页，然后在store下创建user/index.js状态管理，在主页面引用，如果登录了后，就保存到状态管理，
+22.用户注册组件开发：
+	注册组件的结构大概写一下，然后用样式美化一下，然后给发送验证码添加点击事件	
+
+23.用户重置密码组件：
+	修改密码的组件大概写一下，然后用样式美化一下，然后给发送验证码添加点击事件
+
+24.管理员接口和管理员权限：	
+	在miaomiaoserver中的routes创建admin.js并且配置路由，在controllers创建admin.js写接口，然后在app.js中引入，并且进行登录拦截
+25.管理员后天组件开发：
+	在前台找到views，创建admin文件夹，然后在router创建路由，然后在主路由引入，用状态管理记录是否是管理员，并且设置前置路由，如果是管理员进入页面，否则登录管理员账号
+
+26.ElementUI搭建后台布局：
+	在控制台输入cnpm i -S element-ui搭建ElementUI组件,然后在main.js中引用，用localStorage将状态管理存储到本地
+27.ElementUI导航和表格：
+	先把组件配置好，接下来切换路由，在views/Admin下创建users.vue,cinema.vue,movie.vue,然后在router/admin文件配置路由，然后在models/users.js中写一个查询所有信息
+	的接口并且暴露接口，在controllers的admin中创建userList方法，使用该方法调用上述接口，然后判断是否获取到信息，并且暴露接口，
+	然后前端在mounted周期中使用axios连接此接口，
+
+28.用户管理相关接口实现：
+	首先在后端models/users.js中更改数据库中的状态，然后在controller/admin编写updateFreeze方法判断是否操作成功，
+	然后在路由上配置路由接口，然后在前台调用
+
+29.账号冻结和删除：
+	在controller/users的登录增加一个判断，判断是否被冻结，
+	删除操作首先在后台的model添加一个方法，该方法可以删除数据库中的一条数据，然后暴露接口，然后在controller/admin写一个方法，该方法先获取前台email，然后调用
+	接口的删除操作，然后在router/admin中引用此路由，然后在前台使用axios请求此接口，
+
+30.ElementUI分页处理：
+	在views/Admin/users插入elementUI的分页器，
+
+31.优化验证码时效与倒计时：
+	在后台找到配置文件config.js，在emali添加一个方法，该方法返回毫秒数，然后回到controller/users,在发送验证码时用session存储一下time,然后在登录时判断一下是否过期，
+	然后回到前台，将发送验证码点击之后还能显示剩余多少秒，：disabled为true时不能点击按钮，设置一个定时器，
+32.优化密码加密与安全：
+	在后台untils创建base.js，在里面引入crypto加密，然后在controller/users引入，在注册的密码进行调用，同样修改密码和登录密码都需要进行调用
+
+33.优化登录创建防攻击验证码：
+	打开后端的命令行，输入cnpm i -S trek-captcha下载验证码工具，编写方法并且暴露接口，并在controllers/users下的登录加个判断验证码，在前端的
+	图片直接引入接口，并且添加点击事件，点一次更新一张
+34.用户上传头像：
+	在model的UserSchema中添加一个默认的头像信息，	然后在前台的views/Admin/users添加头像组件，在model写一个更换头像的方法，然后在controller写一个更换
+	头像的方法，需要引入第三方模块，输入cnpm i -S multer可以实现上传功能，
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
